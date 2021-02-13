@@ -6,6 +6,8 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import data.Module;
+
 /**
  * This class provides an empty implementation of {@link tfParserListener},
  * which can be extended to create a listener which only needs to handle a subset
@@ -601,6 +603,10 @@ public class tfParserBaseListener implements tfParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void visitErrorNode(ErrorNode node) { }
+	public Module getModule() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	@Override
 	public void setParser(tfParser parser) {
 		// TODO Auto-generated method stub

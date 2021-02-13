@@ -1,5 +1,3 @@
-package antlr4;
-
 // Generated from tfParser.g4 by ANTLR 4.8
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
