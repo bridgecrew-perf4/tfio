@@ -2,6 +2,9 @@ package data;
 
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.json.JsonValue;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -32,6 +35,8 @@ public class Block {
 	// We're also keeping track of the filenames, for no reason yet
 	private String fileName;
 	
+	private int lineNumber;
+	
 	// And this too, interestingly
 	private Interval sourceInterval;
 	
@@ -46,14 +51,14 @@ public class Block {
 	 */
 	public Block(tfParser.TerraformContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		addArguments(x.argument());
 		addBlocks(x.block());
 	}
 	public Block(tfParser.ProviderContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		objectType = x.blockType().getText();
 		key = objectType;
@@ -64,7 +69,7 @@ public class Block {
 	}
 	public Block(tfParser.ResourceContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		objectType = x.blockType().getText();
 		key = objectType + "." + x.blockName().getText();
@@ -74,7 +79,7 @@ public class Block {
 	}
 	public Block(tfParser.DataContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		objectType = x.blockType().getText();
 		key = objectType + "." + x.blockName().getText();
@@ -84,7 +89,7 @@ public class Block {
 	}
 	public Block(tfParser.VariableContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		key = x.blockName().getText();
 		
@@ -93,7 +98,7 @@ public class Block {
 	}
 	public Block(tfParser.OutputContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		key = x.blockName().getText();
 		
@@ -102,7 +107,7 @@ public class Block {
 	}
 	public Block(tfParser.BlockContext x, Block parentBlock) {
 		fileName = x.getStart().getTokenSource().getSourceName(); 
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		this.parentBlock = parentBlock;
 		key = getBlockKey(x);
@@ -112,7 +117,7 @@ public class Block {
 	}
 	public Block(ModuleContext x) {
 		fileName = x.getStart().getTokenSource().getSourceName();
-		sourceInterval = x.getSourceInterval();
+		lineNumber = x.getStart().getLine();
 		
 		key = x.blockName().getText();
 		
@@ -170,5 +175,8 @@ public class Block {
 	
 	public Map<String, Block> getBlocks() {
 		return childBlocks;
+	}
+	public int getLineNumber() {
+		return lineNumber;
 	}
 }

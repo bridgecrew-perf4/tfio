@@ -70,6 +70,9 @@ public class Antlr {
 		parser.addErrorListener(AntlrExceptionThrower.INSTANCE);
 		try {
 			parser.file();
+			listener.addComments(parser.getTokenStream());
+			// need to toggle "profiling" somehow?
+			// listener.setParseInfo(parser.getParseInfo());
 		} catch (ParseCancellationException e) {
 			// do more, later
 			System.out.println(e.getMessage());
@@ -80,6 +83,7 @@ public class Antlr {
 		tfLexer lexer = getLexer(filePath);
 		CommonTokenStream tokens = getTokens(lexer);
 		tfParser parser = getParser(tokens);
+		Expression.setRecognizer(parser);
 		executeParseListen(parser, listener);
 	}
 }

@@ -3,6 +3,8 @@ package antlr4;
 // Generated from tfParser.g4 by ANTLR 4.8
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.atn.ParseInfo;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -609,6 +611,14 @@ public class tfParserBaseListener implements tfParserListener {
 	}
 	@Override
 	public void setParser(tfParser parser) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void setParseInfo(ParseInfo parseInfo) {
+		// TODO Auto-generated method stub
+		
+	}
+	public void addComments(TokenStream tokenStream) {
 		// TODO Auto-generated method stub
 		
 	}

@@ -1,19 +1,28 @@
 package data;
 
 import java.util.Map;
+import java.util.TreeMap;
+
+import org.antlr.v4.runtime.atn.ParseInfo;
 
 import antlr4.tfParser.ArgumentContext;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Module {
 	
+	String key;
+	
 	// A module is simply a folder which contains *.tf files
 	private File moduleDirectory;
 	
 	private HashMap<String, ArrayList<String>> fileBlocksInOrder;
+	
+	// this tracks all sorts of info about the parser's behavior?
+	private ParseInfo parseInfo;
 	
 	// There may be *.tf files in a child folder of this Module
 	// Those child folders containing *.tf files will become child Modules
@@ -57,7 +66,11 @@ public class Module {
 	// }
 	// key = "db_subnet_group_name" 
 	
+	private TreeMap<Integer, String> comments;
+	
 	public Module(File moduleDirectory) {
+		
+		key = moduleDirectory.getAbsolutePath();
 		
 		// A module is a directory of .tf files
 		this.moduleDirectory = moduleDirectory;
@@ -85,17 +98,21 @@ public class Module {
 		
 		// And me
 		fileBlocksInOrder = new HashMap<String, ArrayList<String>>();
+		
+		// And me
+		comments = new TreeMap<Integer, String>();
 	}
 
 	/* Adders and Setters - for ModuleBuilder */
 	public void addChildModule(Module childModule) {
-		String key = childModule.getKey();
-		childModules.put(key, childModule);
+		String childKey = childModule.getKey();
+		childKey = Paths.get(key).relativize(Paths.get(childKey)).toString();
+		childModules.put(childKey, childModule);
 	}
 	public void addModuleBlock(Block block, String fileName) {
 		String key = block.getKey();
 		moduleBlocks.put(key, block);
-		fileBlocksInOrder.get(fileName).add(key);
+		fileBlocksInOrder.get(fileName).add("module." + key);
 	}
 	public void addProviderBlock(Block block, String fileName) {
 		String key = block.getKey();
@@ -110,12 +127,12 @@ public class Module {
 	public void addDataBlock(Block block, String fileName) {
 		String key = block.getKey();
 		dataBlocks.put(key, block);
-		fileBlocksInOrder.get(fileName).add(key);
+		fileBlocksInOrder.get(fileName).add("data." + key);
 	}
 	public void addVariableBlock(Block block, String fileName) {
 		String key = block.getKey();
 		variableBlocks.put(key, block);
-		fileBlocksInOrder.get(fileName).add(key);
+		fileBlocksInOrder.get(fileName).add("var." + key);
 	}
 	public void addOutputBlock(Block block, String fileName) {
 		String key = block.getKey();
@@ -126,12 +143,15 @@ public class Module {
 		// This behavior needs checking
 		String key = argument.identifier().getText();
 		locals.put(key, new Expression(argument.expression()));
-		fileBlocksInOrder.get(fileName).add(key);
+		fileBlocksInOrder.get(fileName).add("local." + key);
 	}
 	public void setTerraformBlock(Block block, String fileName) {
 		// As does this one
 		terraformBlock = block;
 		fileBlocksInOrder.get(fileName).add("terraform");
+	}
+	public void addComment(int lineNumber, String comment) {
+		comments.put(lineNumber, comment);
 	}
 
 	/* Getters - for ModulePrinterJson */
@@ -166,14 +186,27 @@ public class Module {
 		return locals;
 	}
 	public String getKey() {
-		// Absolute paths don't share well across filesystems, I'm a bit worried about this
-		String modulePathString = moduleDirectory.getAbsolutePath();
-		// Remove the quotation marks if they're there
-		return modulePathString.startsWith("\"") ? modulePathString.substring(1, modulePathString.length()-1) : modulePathString;
+		return key.startsWith("\"") ? key.substring(1, key.length()-1) : key;
 	}
 	
 	/* Adding file */
 	public void addFileBlockList(String filenameString) {
 		fileBlocksInOrder.put(filenameString, new ArrayList<String>());
+	}
+	
+	public Map<String, ArrayList<String>> getFileBlockInOrder() {
+		return fileBlocksInOrder;
+	}
+
+	public TreeMap<Integer, String> getComments() {
+		return comments;
+	}
+	
+	public ParseInfo getParseInfo() {
+		return parseInfo;
+	}
+
+	public void setParseInfo(ParseInfo parseInfo) {
+		this.parseInfo = parseInfo;
 	}
 }

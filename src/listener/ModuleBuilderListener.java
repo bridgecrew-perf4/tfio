@@ -1,5 +1,11 @@
 package listener;
 
+import java.nio.file.Paths;
+
+import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.TokenStream;
+import org.antlr.v4.runtime.atn.ParseInfo;
+
 import antlr4.tfParser;
 import antlr4.tfParserBaseListener;
 import data.Block;
@@ -18,9 +24,25 @@ public class ModuleBuilderListener extends tfParserBaseListener {
 	}
 	
 	@Override
+	public void setParseInfo(ParseInfo parseInfo) {
+		module.setParseInfo(parseInfo);
+	}
+	
+	@Override
+	public void addComments(TokenStream tokens) {
+		for (int i = 0; i < tokens.size(); i++) {
+			Token token = tokens.get(i);
+			if (token.getChannel() == 3) {
+				module.addComment(token.getLine(), token.getText());
+			}
+		}
+	}
+	
+	@Override
 	public void exitFile(tfParser.FileContext ctx) {
 		
 		String fileName = ctx.start.getTokenSource().getSourceName();
+		fileName = Paths.get(module.getKey()).relativize(Paths.get(fileName)).toString();
 		module.addFileBlockList(fileName);
 		
 		for (tfParser.TerraformContext x : ctx.terraform()) {
